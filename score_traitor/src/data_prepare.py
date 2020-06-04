@@ -9,8 +9,8 @@ PATH_BASIC = '../data/data_origin/'
 
 def data_read_df(path):
     df = pd.read_excel(path,header=0)
-    df = df.dropna()
-    df.rename(columns={'Unnamed: 0': 'university', 'Unnamed: 1': 'score', 'Unnamed: 2': 'university', 'Unnamed: 3': 'sx',
+    df = df.dropna(subset=['score'])
+    df.rename(columns={'Unnamed: 0': 'university', 'Unnamed: 1': 'score', 'Unnamed: 2': 'yw', 'Unnamed: 3': 'sx',
                        'Unnamed: 4': 'yy'}, inplace=True)
     return df
 
