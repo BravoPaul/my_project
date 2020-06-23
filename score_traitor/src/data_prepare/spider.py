@@ -14,7 +14,7 @@ import itertools
 PATH_UNIVERSITY = '/Users/kunyue/project_personal/my_project/score_traitor/data/data_spider/data_university/'
 
 
-def jd_login(username, password):
+def get_cookie(username, password):
     pass
     chromedriver = '/Users/kunyue/project_personal/my_project/score_traitor/resource/chromedriver-1'
     driver = webdriver.Chrome(chromedriver)
@@ -34,25 +34,6 @@ def jd_login(username, password):
     driver.close()  # 关闭浏览器
     pickle.dump(jd_cookies, open('cookies.pkl', 'wb'))  # 保存cookies
     # print('cookies save successfully!')
-
-
-def go_page(url):
-    session = webdriver.Chrome()
-    cookies = pickle.load(open("cookies.pkl", "rb"))
-    print(cookies)
-    session.get(url)
-    session.delete_all_cookies()
-    for c in cookies:
-        new = dict(c, **{
-            "domain": ".jd.com",
-            "expires": "",
-            'path': '/',
-            'httpOnly': False,
-            'HostOnly': False,
-            'Secure': False,
-        })
-        session.add_cookie(new)
-    session.get(url)
 
 
 def download_score_index_page(url):
@@ -133,7 +114,7 @@ def download_page_index(url, **kargs):
     return result
 
 
-def download_page_school_score(url, university_id, wenli, page_num):
+def download_page_school_score(url, **kargs):
     cookies = pickle.load(open("cookies.pkl", "rb"))
     newHeaders = {'Accept': 'application/json'
         , 'Accept-Encoding': 'gzip, deflate, br'
@@ -145,7 +126,7 @@ def download_page_school_score(url, university_id, wenli, page_num):
         , 'Content-Type': 'application/json'
         , 'Host': 'www.wmzy.com'
         , 'Origin': 'https://www.wmzy.com'
-        , 'Referer': 'https://www.wmzy.com/web/school?type=2&sch_id=' + university_id + ''
+        , 'Referer': 'https://www.wmzy.com/web/school?type=2&sch_id=' + kargs['sch_id'] + ''
         , 'Sec-Fetch-Dest': 'empty'
         , 'Sec-Fetch-Mode': 'cors'
         , 'Sec-Fetch-Site': 'same-origin'
@@ -153,16 +134,17 @@ def download_page_school_score(url, university_id, wenli, page_num):
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'
         , 'x-requested-with': 'XMLHttpRequest'}
     cookie_jar = RequestsCookieJar()
-    payload = {"page": 1, "page_size": 10, "sch_id": "" + university_id + "",
-               "enroll_unit_id": "" + university_id + "", "enroll_category": 1, "enroll_mode": 1, "diploma_id": 1,
-               "stu_province_id": "130000000000", "wenli": wenli, "only_admission": True}
+    payload = {"page": 1, "page_size": 10, "sch_id": kargs['sch_id'],
+               "enroll_unit_id": kargs['sch_id'], "enroll_category": 1, "enroll_mode": 1,
+               "diploma_id": 1,
+               "stu_province_id": "130000000000", "wenli": kargs['wenli'], "only_admission": True}
     for c in cookies:
         cookie_jar.set(c['name'], c['value'], domain="wmzy.com")
     page = requests.post(url, cookies=cookie_jar, headers=newHeaders, json=payload)
     soup = BeautifulSoup(page.text, 'html.parser', from_encoding='utf-8')
     site_json = json.loads(soup.text)
     result = site_json['data']['eu_list']
-    print('进度：:', page_num)
+    print('进度：:', kargs['page_num'])
     return result
 
 
@@ -178,7 +160,7 @@ def download_page_major_score(url, **kargs):
         , 'Content-Type': 'application/json'
         , 'Host': 'www.wmzy.com'
         , 'Origin': 'https://www.wmzy.com'
-        , 'Referer': 'https://www.wmzy.com/web/school?type=2&sch_id=' + kargs['university'] + ''
+        , 'Referer': 'https://www.wmzy.com/web/school?type=2&sch_id=' + kargs['sch_id'] + ''
         , 'Sec-Fetch-Dest': 'empty'
         , 'Sec-Fetch-Mode': 'cors'
         , 'Sec-Fetch-Site': 'same-origin'
@@ -188,7 +170,7 @@ def download_page_major_score(url, **kargs):
     cookie_jar = RequestsCookieJar()
     # batch控制一批还是二批，diploma_id控制本科还是专科
     payload = {"page_size": 10, "stu_province_id": "130000000000", "enroll_category": 1, "enroll_mode": 1,
-               "enroll_unit_id": "" + kargs['university'] + "", "sort_key": "min_score", "sort_type": 1,
+               "enroll_unit_id": "" + kargs['sch_id'] + "", "sort_key": "min_score", "sort_type": 1,
                "only_admission": True, "page": 1, "year": kargs['academic_year'], "enroll_year": kargs['academic_year'],
                "wenli": kargs['wenli'],
                "academic_year": kargs['academic_year'],
@@ -212,28 +194,39 @@ def spider_all_university():
 
 
 def spider_all_school_score(inter):
-    list_university = get_university()[inter[0]:inter[1]]
+    sp = SpiderData()
+    list_university = sp.get_university_index()[inter[0]:inter[1]]
     result_f = []
     for i, one_data in enumerate(list_university):
-        u_id = one_data['sch_id']
-        for wenli in [1, 2]:
+        index = one_data['result']
+        if index is None:
+            result_f.append({'sch_id': one_data['sch_id']})
+            continue
+        for wenli_i in [1, 2]:
+            args = {}
+            args['sch_id'] = one_data['sch_id']
+            args['wenli'] = wenli_i
+            args['page_num'] = i
             result = download_page_school_score(
-                'https://www.wmzy.com/gw/api/sku/enroll_admission_service/sch_enroll_data',
-                u_id, wenli, i)
-            result_f.append({'university': u_id, 'wenli': wenli, 'result': result})
-    # pickle.dump(result_f,
-    #             open(PATH_UNIVERSITY + 'university_score' + '_' + str(inter[0]) + '_' + str(inter[1]) + '.pkl', 'wb'))
+                'https://www.wmzy.com/gw/api/sku/enroll_admission_service/sch_enroll_data', **args)
+            args['result'] = result
+            result_f.append(args)
     return result_f
 
 
 #
 def spider_all_major_score(inter):
-    list_university = get_university_index()[inter[0]:inter[1]]
+    sp = SpiderData()
+    data = sp.get_university_index()
+    list_university = data[inter[0]:inter[1]]
     result_f = []
     for i, one_data in enumerate(list_university):
         index = one_data['result']
+        if index is None:
+            result_f.append({'sch_id': one_data['sch_id']})
+            continue
         for one_index in index:
-            one_index['university'] = one_data['university']
+            one_index['sch_id'] = one_data['sch_id']
             one_index['page_num'] = i
             result = download_page_major_score(
                 'https://www.wmzy.com/gw/api/sku/enroll_admission_service/major_enroll_data', **one_index)
@@ -262,11 +255,14 @@ class SpiderData(object):
         self.basic_path = '/Users/kunyue/project_personal/my_project/score_traitor/data/data_spider/data_university/'
 
     def __search_print(self, data, university=None):
+        result = []
         for one_s in data:
             if one_s['sch_id'] == university:
-                js = json.dumps(one_s, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ':'))
-                print(js)
-                return one_s
+                result.append(one_s)
+
+        js = json.dumps(result, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ':'))
+        print(js)
+        return result
 
     def get_university_by_name(self, name):
         data = pickle.load(open(
@@ -295,7 +291,7 @@ class SpiderData(object):
 
     def get_university_score(self, university=None, university_name=None):
         data = pickle.load(open(
-            self.basic_path + 'university_score.pkl', "rb"))
+            self.basic_path + 'spider_all_school_score.pkl', "rb"))
         print('长度为：', len(data))
         if university is not None or university_name is not None:
             id = university if university is not None else self.get_university_by_name(university_name)
@@ -304,7 +300,7 @@ class SpiderData(object):
 
     def get_university_major_score(self, university=None, university_name=None):
         data = pickle.load(open(
-            self.basic_path + 'university_major_score.pkl', "rb"))
+            self.basic_path + 'spider_all_major_score.pkl', "rb"))
         print('长度为：', len(data))
         if university is not None or university_name is not None:
             id = university if university is not None else self.get_university_by_name(university_name)
@@ -330,9 +326,9 @@ def mul_thread_run(func):
 
 if __name__ == '__main__':
     sp = SpiderData()
-    data = sp.get_university_index(university_name='北华航天工业学院')
+    data = sp.get_university_major_score(university_name='北京大学')
     #
-    # mul_thread_run(spider_all_university_index)
+    # mul_thread_run(spider_all_school_score)
     # get_university_index()
     # get_university_major_score()
     # get_university()
