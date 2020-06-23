@@ -1,0 +1,17 @@
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+Authorization: 4063523 fadinKtTMMPz/uDnv27CnTgDMcoFK9i8+pZKlqlmf8IXYXnNuD7cBlB9G3oJIOXk
+Channel: www.wmzy.com pc
+Connection: keep-alive
+Content-Length: 362
+Content-Type: application/json
+Cookie: __wpkreporterwid_=c2eeadeb-8003-4816-1cf1-088708e7b575; updatePwd=0; geetest=MTU5MjgxNjI0M3xOd3dBTkVsUFVGSlhWVlpXV0RaVk5GUldXa2hPUjFsV1VFSkxRVTlEUkVwVlZFOVhRVEkyVlVsRFdFUk5TemRUUmtGTlIwNUxRVkU9fPCy7emUWsckrAgDlB3QCSIDLeH_dumor5LbyeP4ExYd; jwtToken=fadinKtTMMPz/uDnv27CnTgDMcoFK9i8+pZKlqlmf8IXYXnNuD7cBlB9G3oJIOXk; uid=4063523; acw_tc=2f624a7615928175984762645e1d1636a8844339706147cf49a59c2191d82b
+Host: www.wmzy.com
+Origin: https://www.wmzy.com
+Referer: https://www.wmzy.com/web/school?type=2&sch_id=52ac2e99747aec013fcf4e6f
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36
+x-requested-with: XMLHttpRequest
