@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions
 from multiprocessing.dummy import Pool as ThreadPool
 import itertools
 
-PATH_UNIVERSITY = '/Users/kunyue/project_personal/my_project/score_traitor/data/data_spider/data_university/'
+PATH_UNIVERSITY = '/Users/kunyue/project_personal/my_project/score_traitor/data/data_spider/'
 
 
 def get_cookie(username, password):
@@ -169,7 +169,7 @@ def download_page_major_score(url, **kargs):
         , 'x-requested-with': 'XMLHttpRequest'}
     cookie_jar = RequestsCookieJar()
     # batch控制一批还是二批，diploma_id控制本科还是专科
-    payload = {"page_size": 10, "stu_province_id": "130000000000", "enroll_category": 1, "enroll_mode": 1,
+    payload = {"page_size": 100, "stu_province_id": "130000000000", "enroll_category": 1, "enroll_mode": 1,
                "enroll_unit_id": "" + kargs['sch_id'] + "", "sort_key": "min_score", "sort_type": 1,
                "only_admission": True, "page": 1, "year": kargs['academic_year'], "enroll_year": kargs['academic_year'],
                "wenli": kargs['wenli'],
@@ -277,7 +277,7 @@ class SpiderData(object):
         print('长度为：', len(data))
         if university is not None or university_name is not None:
             id = university if university is not None else self.get_university_by_name(university_name)
-            self.__search_print(data, id)
+            return self.__search_print(data, id)
         return data
 
     def get_university_index(self, university=None, university_name=None):
@@ -286,7 +286,7 @@ class SpiderData(object):
         print('长度为：', len(data))
         if university is not None or university_name is not None:
             id = university if university is not None else self.get_university_by_name(university_name)
-            self.__search_print(data, id)
+            return self.__search_print(data, id)
         return data
 
     def get_university_score(self, university=None, university_name=None):
@@ -295,7 +295,7 @@ class SpiderData(object):
         print('长度为：', len(data))
         if university is not None or university_name is not None:
             id = university if university is not None else self.get_university_by_name(university_name)
-            self.__search_print(data, id)
+            return self.__search_print(data, id)
         return data
 
     def get_university_major_score(self, university=None, university_name=None):
@@ -304,8 +304,23 @@ class SpiderData(object):
         print('长度为：', len(data))
         if university is not None or university_name is not None:
             id = university if university is not None else self.get_university_by_name(university_name)
-            self.__search_print(data, id)
+            return self.__search_print(data, id)
         return data
+
+    def get_major_payload_by_university_name(self, university_name=None, year=2018, wenli=2):
+        list_university = self.get_university_index(university_name=university_name)
+        result_f = []
+        for i, one_data in enumerate(list_university):
+            index = one_data['result']
+            if index is None:
+                result_f.append({'sch_id': one_data['sch_id']})
+                continue
+            for one_index in index:
+                one_index['sch_id'] = one_data['sch_id']
+                one_index['page_num'] = i
+                if one_index['academic_year'] == year and one_index['wenli'] == wenli:
+                    result_f.append(one_index)
+        return result_f
 
 
 def mul_thread_run(func):
@@ -326,11 +341,16 @@ def mul_thread_run(func):
 
 if __name__ == '__main__':
     sp = SpiderData()
-    data = sp.get_university_major_score(university_name='北京大学')
+    data = sp.get_university_major_score(university_name='河北工业大学')
     #
-    # mul_thread_run(spider_all_school_score)
+    # mul_thread_run(spider_all_major_score)
     # get_university_index()
     # get_university_major_score()
     # get_university()
-    # download_page_major_score('https://www.wmzy.com/gw/api/sku/enroll_admission_service/major_enroll_data')
+
+    # 自定义专业爬虫
+    # sp = SpiderData()
+    # result = sp.get_major_payload_by_university_name('电子科技大学')[0]
+    # result_tmp = download_page_major_score('https://www.wmzy.com/gw/api/sku/enroll_admission_service/major_enroll_data',**result)
+    # print(result_tmp)
     # download_page_index('https://www.wmzy.com/gw/enroll_admission_service/sku_enroll_adm_data_drop_box')
