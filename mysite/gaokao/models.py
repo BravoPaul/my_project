@@ -28,6 +28,36 @@ class School(models.Model):
         return self.sch_id + '_' + self.sch_name + '_' + self.location
 
 
+class SchoolDetail(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    canteen_desc = models.TextField(null=True, blank=True)
+    sch_address = models.TextField(max_length=200, null=True, blank=True)
+    sch_fellowship = models.TextField(max_length=200, null=True, blank=True)
+    sch_intro = models.TextField(max_length=200, null=True, blank=True)
+    sch_scholarship = models.TextField(max_length=200, null=True, blank=True)
+    sch_tel_num = models.CharField(max_length=200, null=True, blank=True)
+    sch_web_url = models.CharField(max_length=200, null=True, blank=True)
+    stu_dorm_desc = models.CharField(max_length=200, null=True, blank=True)
+    sch_master_ratio = models.FloatField(null=True, blank=True)
+    sch_abroad_ratio = models.FloatField(null=True, blank=True)
+
+
+class SchoolRank(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    rank_type_desc = models.CharField(max_length=200, null=True, blank=True)
+    rank_year = models.IntegerField(null=True, blank=True)
+    rank_idx = models.IntegerField(null=True, blank=True)
+    rank_score = models.FloatField(null=True, blank=True)
+    rank_type = models.CharField(max_length=200, null=True, blank=True)
+    world_rank_idx = models.IntegerField(null=True, blank=True)
+
+
+class SchoolFamous(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    celebrity_name = models.CharField(max_length=200, null=True, blank=True)
+    celebrity_desc = models.CharField(max_length=200, null=True, blank=True)
+
+
 class Major(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     major_name = models.CharField(max_length=200)
