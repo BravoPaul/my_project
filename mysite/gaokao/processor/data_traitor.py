@@ -2,6 +2,7 @@
 # delete from sqlite_sequence where name = 'gaokao_schooldetail';
 # delete from sqlite_sequence;
 
+# python manage.py shell < /Users/kunyue/project_personal/my_project/mysite/gaokao/processor/data_traitor.py
 
 class DataTraitor(object):
     def __init__(self):
@@ -61,7 +62,84 @@ class DataTraitor(object):
                     school = School.objects.get(sch_id=sch_id)
                     SchoolFamous.objects.create(**celebrity_kargs, school=school)
 
+    def university_score_sqlite(self):
+        import pickle
+        from gaokao.models import School, SchoolScore
+        data_origin = pickle.load(open(self.basic_path + 'spider_all_school_score.pkl', "rb"))
+        print('正在执行')
+        for sch_detail in data_origin:
+            try:
+                result_detail = sch_detail['result']
+                if result_detail is not None:
+                    for one_result in result_detail:
+                        sch_id = one_result['sch_id']
+                        true_data = one_result['enroll_info_list']
+                        for one_true_data in true_data:
+                            data_kargs = {}
+                            data_kargs['academic_year'] = one_true_data['academic_year']
+                            data_kargs['wenli'] = one_true_data['wenli']
+                            data_kargs['batch'] = one_true_data['batch']
+                            data_kargs['batch_name'] = one_true_data['batch_name']
+                            data_kargs['diploma_id'] = one_true_data['diploma_id']
+                            data_kargs['admission_count'] = one_true_data['admission_count']
+                            data_kargs['enroll_plan_count'] = one_true_data['enroll_plan_count']
+                            data_kargs['max_score'] = one_true_data['max_score']
+                            data_kargs['max_score_diff'] = one_true_data['max_score_diff']
+                            data_kargs['max_score_equal'] = one_true_data['max_score_equal']
+                            data_kargs['max_score_rank'] = one_true_data['max_score_rank']
+                            data_kargs['min_score'] = one_true_data['min_score']
+                            data_kargs['min_score_diff'] = one_true_data['min_score_diff']
+                            data_kargs['min_score_equal'] = one_true_data['min_score_equal']
+                            data_kargs['min_score_rank'] = one_true_data['min_score_rank']
+                            data_kargs['avg_score'] = one_true_data['avg_score']
+                            data_kargs['avg_score_diff'] = one_true_data['avg_score_diff']
+                            data_kargs['avg_score_equal'] = one_true_data['avg_score_equal']
+                            data_kargs['avg_score_rank'] = one_true_data['avg_score_rank']
+                            school = School.objects.get(sch_id=sch_id)
+                            SchoolScore.objects.create(**data_kargs, school=school)
+            except KeyError:
+                continue
+
+    def university_major_sqlite(self):
+        import pickle
+        from gaokao.models import School, SchoolMajor
+        data_origin = pickle.load(open(self.basic_path + 'spider_all_major_score.pkl', "rb"))
+        print('正在执行')
+        for sch_detail in data_origin:
+            try:
+                data_kargs = {}
+                sch_id = sch_detail['sch_id']
+                data_kargs['wenli'] = sch_detail['wenli']
+                data_kargs['academic_year'] = sch_detail['academic_year']
+                data_kargs['batch'] = sch_detail['batch']
+                data_kargs['batch_name'] = sch_detail['batch_name']
+                data_kargs['diploma_id'] = sch_detail['diploma_id']
+                result_detail = sch_detail['result']
+                if result_detail is not None and type(result_detail) is list:
+                    for one_result in result_detail:
+                        data_kargs['academic_rule'] = one_result['academic_rule']
+                        data_kargs['admission_count'] = one_result['admission_count']
+                        data_kargs['avg_score'] = one_result['avg_score']
+                        data_kargs['avg_score_diff'] = one_result['avg_score_diff']
+                        data_kargs['avg_score_rank'] = one_result['avg_score_rank']
+                        data_kargs['enroll_major_code'] = one_result['enroll_major_code']
+                        data_kargs['enroll_major_id'] = one_result['enroll_major_id']
+                        data_kargs['enroll_major_name'] = one_result['enroll_major_name']
+                        data_kargs['enroll_plan_count'] = one_result['enroll_plan_count']
+                        data_kargs['max_score'] = one_result['max_score']
+                        data_kargs['max_score_diff'] = one_result['max_score_diff']
+                        data_kargs['max_score_rank'] = one_result['max_score_rank']
+                        data_kargs['min_score'] = one_result['min_score']
+                        data_kargs['min_score_diff'] = one_result['min_score_diff']
+                        data_kargs['min_score_rank'] = one_result['min_score_rank']
+                        data_kargs['tuition'] = one_result['tuition']
+                        school = School.objects.get(sch_id=sch_id)
+                        SchoolMajor.objects.create(**data_kargs, school=school)
+            except KeyError:
+                continue
+
+
 
 print('执行了么')
 dt = DataTraitor()
-dt.university_detail_sqlite()
+dt.university_major_sqlite()

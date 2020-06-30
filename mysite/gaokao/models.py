@@ -58,6 +58,58 @@ class SchoolFamous(models.Model):
     celebrity_desc = models.CharField(max_length=200, null=True, blank=True)
 
 
+class SchoolScore(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    # 条件
+    academic_year = models.CharField(max_length=200, default='')
+    wenli = models.CharField(max_length=200, default='')
+    batch = models.CharField(max_length=200, default='')
+    batch_name = models.CharField(max_length=200, default='')
+    diploma_id = models.CharField(max_length=200, default='')
+    # 信息
+    admission_count = models.CharField(max_length=200, null=True, blank=True)
+    enroll_plan_count = models.CharField(max_length=200, null=True, blank=True)
+    max_score = models.CharField(max_length=200, null=True, blank=True)
+    max_score_diff = models.CharField(max_length=200, null=True, blank=True)
+    max_score_equal = models.CharField(max_length=200, null=True, blank=True)
+    max_score_rank = models.CharField(max_length=200, null=True, blank=True)
+    min_score = models.CharField(max_length=200, null=True, blank=True)
+    min_score_diff = models.CharField(max_length=200, null=True, blank=True)
+    min_score_equal = models.CharField(max_length=200, null=True, blank=True)
+    min_score_rank = models.CharField(max_length=200, null=True, blank=True)
+    avg_score = models.CharField(max_length=200, null=True, blank=True)
+    avg_score_diff = models.CharField(max_length=200, null=True, blank=True)
+    avg_score_equal = models.CharField(max_length=200, null=True, blank=True)
+    avg_score_rank = models.CharField(max_length=200, null=True, blank=True)
+
+
+class SchoolMajor(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    # 条件
+    wenli = models.CharField(max_length=200, default='')
+    academic_year = models.CharField(max_length=200, default='')
+    batch = models.CharField(max_length=200, default='')
+    batch_name = models.CharField(max_length=200, default='')
+    diploma_id = models.CharField(max_length=200, default='')
+    # 信息
+    academic_rule = models.CharField(max_length=200, null=True, blank=True)
+    admission_count = models.CharField(max_length=200, null=True, blank=True)
+    avg_score = models.CharField(max_length=200, null=True, blank=True)
+    avg_score_diff = models.CharField(max_length=200, null=True, blank=True)
+    avg_score_rank = models.CharField(max_length=200, null=True, blank=True)
+    enroll_major_code = models.CharField(max_length=200, null=True, blank=True)
+    enroll_major_id = models.CharField(max_length=200, null=True, blank=True)
+    enroll_major_name = models.CharField(max_length=200, null=True, blank=True)
+    enroll_plan_count = models.CharField(max_length=200, null=True, blank=True)
+    max_score = models.CharField(max_length=200, null=True, blank=True)
+    max_score_diff = models.CharField(max_length=200, null=True, blank=True)
+    max_score_rank = models.CharField(max_length=200, null=True, blank=True)
+    min_score = models.CharField(max_length=200, null=True, blank=True)
+    min_score_diff = models.CharField(max_length=200, null=True, blank=True)
+    min_score_rank = models.CharField(max_length=200, null=True, blank=True)
+    tuition = models.CharField(max_length=200, null=True, blank=True)
+
+
 class Major(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     major_name = models.CharField(max_length=200)
