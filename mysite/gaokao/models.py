@@ -28,6 +28,11 @@ class School(models.Model):
         return self.sch_id + '_' + self.sch_name + '_' + self.location
 
 
+class SchoolList(models.Model):
+    condition = models.CharField(max_length=200, null=True, blank=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+
+
 class SchoolDetail(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     canteen_desc = models.TextField(null=True, blank=True)

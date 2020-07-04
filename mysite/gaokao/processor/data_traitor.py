@@ -138,8 +138,103 @@ class DataTraitor(object):
             except KeyError:
                 continue
 
+    def university_schoollist_sqlite(self):
+        import pickle
+        from gaokao.models import School, SchoolList
+        print('正在执行')
+        tags = ['985', '211', '双一流', '研究生点', '民办高校', '公立大学']
+        score_tags = ['本科第一批', '本科第二批', '高职专科批']
+        locates_top = ['北京', '上海', '广州', '深圳']
+        locates_deux = ['成都市'
+            , '杭州市'
+            , '武汉市'
+            , '西安市'
+            , '苏州市'
+            , '南京市'
+            , '长沙市'
+            , '郑州市'
+            , '东莞市'
+            , '青岛市'
+            , '沈阳市'
+            , '宁波市'
+            , '昆明市'
+            , '天津市'
+            , '重庆市']
+        locates = [
+            '北京',
+            '上海',
+            '天津',
+            '重庆',
+            '广东',
+            '河北',
+            '辽宁',
+            '吉林',
+            '黑龙江',
+            '山东',
+            '江苏',
+            '浙江',
+            '安徽',
+            '福建',
+            '江西',
+            '广西',
+            '海南',
+            '河南',
+            '湖南',
+            '湖北',
+            '山西',
+            '内蒙古',
+            '宁夏',
+            '青海',
+            '陕西',
+            '甘肃',
+            '新疆',
+            '四川',
+            '贵州',
+            '云南',
+            '西藏',
+            '香港',
+            '澳门',
+            '台湾']
+
+        all_school = School.objects.all()
+        for sch in all_school:
+            for tag in tags:
+                data_kargs = {}
+                if sch.sch_tags.find(tag) >= 0:
+                    data_kargs['condition'] = tag
+                    school = School.objects.get(sch_id=sch.sch_id)
+                    SchoolList.objects.create(**data_kargs, school=school)
+            for loc in locates:
+                data_kargs = {}
+                if sch.province.find(loc) >= 0:
+                    data_kargs['condition'] = loc
+                    school = School.objects.get(sch_id=sch.sch_id)
+                    SchoolList.objects.create(**data_kargs, school=school)
+
+            for loc_x in locates_top:
+                data_kargs = {}
+                if sch.location.find(loc_x) >= 0:
+                    data_kargs['condition'] = '一线城市'
+                    school = School.objects.get(sch_id=sch.sch_id)
+                    SchoolList.objects.create(**data_kargs, school=school)
+
+            for loc_x2 in locates_deux:
+                data_kargs = {}
+                if sch.location.find(loc_x2) >= 0:
+                    data_kargs['condition'] = '新一线城市'
+                    school = School.objects.get(sch_id=sch.sch_id)
+                    SchoolList.objects.create(**data_kargs, school=school)
+
+            for score_tag in score_tags:
+                for one_school_score in sch.schoolscore_set.all():
+                    if one_school_score.batch_name.find(score_tag):
+                        data_kargs['condition'] = score_tag
+                        school = School.objects.get(sch_id=sch.sch_id)
+                        SchoolList.objects.create(**data_kargs, school=school)
+
+
 
 
 print('执行了么')
 dt = DataTraitor()
-dt.university_major_sqlite()
+dt.university_schoollist_sqlite()
