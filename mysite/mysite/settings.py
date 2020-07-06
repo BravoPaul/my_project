@@ -25,7 +25,7 @@ SECRET_KEY = 'f5qs7@@#db((d(4bi36_d-qs%w39pkj-+5w%z7d@ne8#bogjmg'
 DEBUG = True
 APPEND_SLASH = False
 
-ALLOWED_HOSTS = ['192.168.1.7', '192.168.1.5','localhost', '127.0.0.1', '30.77.54.40']
+ALLOWED_HOSTS = ['192.168.1.7', '192.168.1.5','localhost', '127.0.0.1', '30.77.54.33']
 
 # Application definition
 

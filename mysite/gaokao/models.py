@@ -29,7 +29,7 @@ class School(models.Model):
 
 
 class SchoolList(models.Model):
-    condition = models.CharField(max_length=200, null=True, blank=True)
+    condition = models.CharField(max_length=200, default='')
     school = models.ForeignKey(School, on_delete=models.CASCADE)
 
 

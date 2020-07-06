@@ -1,28 +1,37 @@
 from django.shortcuts import get_object_or_404, render
-from .models import School, SchoolList
+from .models import School, SchoolList, SchoolDetail
 from django.http import HttpResponse
 from django.core import serializers
 from itertools import chain
+from django.db.models import Count
 import json
-from django.http import JsonResponse
 
 
 # Create your views here.
 
 # Create your views here.
-def index(request):
+def listmeta(request):
+    result = []
+    index_data = SchoolList.objects.values('condition').annotate(total=Count('school_id'))
+    for one_data in index_data:
+        result.append(one_data)
+    response = json.dumps(result)
+    return HttpResponse(response, content_type="application/json")
+
+
+def list(request):
+    school_list = []
     page_num_ex = int(request.POST.get('page_num_ex'))
     page_num_post = int(request.POST.get('page_num_post'))
-    if request.POST.get('index') == '全部高校':
-        school_list = School.objects.all()[page_num_ex * 30:page_num_post * 30]
+    if request.POST.get('condition') == '全部院校':
+        result_list = School.objects.all()[page_num_ex * 30:page_num_post * 30]
     else:
-        school_list = []
-        index = request.POST.get('index')
-        schoolindexlist = SchoolList.objects.get(condition=index)
+        index = request.POST.get('condition')
+        schoolindexlist = SchoolList.objects.filter(condition=index)
         for sch in schoolindexlist:
-            school_list.append(School.objects.get(sch_id=sch.school_id))
-        school_list = school_list[page_num_ex * 30:page_num_post * 30]
-    result_final = serializers.serialize('json', school_list)
+            school_list += School.objects.filter(sch_id=sch.school_id)
+        result_list = school_list[page_num_ex * 30:page_num_post * 30]
+    result_final = serializers.serialize('json', result_list)
     return HttpResponse(result_final, content_type="application/json")
 
 

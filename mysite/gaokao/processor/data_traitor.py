@@ -140,7 +140,7 @@ class DataTraitor(object):
 
     def university_schoollist_sqlite(self):
         import pickle
-        from gaokao.models import School, SchoolList
+        from gaokao.models import School, SchoolList, SchoolScore
         print('正在执行')
         tags = ['985', '211', '双一流', '研究生点', '民办高校', '公立大学']
         score_tags = ['本科第一批', '本科第二批', '高职专科批']
@@ -225,14 +225,17 @@ class DataTraitor(object):
                     school = School.objects.get(sch_id=sch.sch_id)
                     SchoolList.objects.create(**data_kargs, school=school)
 
-            for score_tag in score_tags:
-                for one_school_score in sch.schoolscore_set.all():
-                    if one_school_score.batch_name.find(score_tag):
-                        data_kargs['condition'] = score_tag
-                        school = School.objects.get(sch_id=sch.sch_id)
-                        SchoolList.objects.create(**data_kargs, school=school)
-
-
+        all_school = SchoolScore.objects.all()
+        for score_tag in score_tags:
+            tmp_schs = set()
+            for sch in all_school:
+                if sch.batch_name.find(score_tag)>=0:
+                    tmp_schs.add(sch.school_id)
+            for sch_id in tmp_schs:
+                data_kargs = {}
+                data_kargs['condition'] = score_tag
+                school = School.objects.get(sch_id=sch_id)
+                SchoolList.objects.create(**data_kargs, school=school)
 
 
 print('执行了么')
